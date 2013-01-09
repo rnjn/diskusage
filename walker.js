@@ -1,52 +1,54 @@
 var fs = require('fs'),
 path = require('path'),
 util = require('util'),
-rjson = require('rjson');
+rjson = require('rjson'),
+_ = require('underscore');
+
 
 var start = Date.now();
 
-function dirTree(filename) {
-    var stats = fs.lstatSync(filename),
-    i = {
-        path: path.basename(filename),
-        size: stats.size
+function xDirTree(fileName){
+    try {
+        var stats = fs.lstatSync(fileName);
+    } 
+    catch (err) {
+        console.log(err);
+        return {
+            path : fileName,
+            name: path.basename(fileName),
+            size : 0
+        };
+    }
+
+    var info = {
+        path : fileName,
+        name: path.basename(fileName),
+        size : stats.size
     };
 
-    if (stats.isDirectory()) {
-        i.type = "d";
-        i.nodes = fs.readdirSync(filename).map(function(child) {
-            return dirTree(filename + '/' + child);
+    if(stats.isDirectory()){
+        info.nodes = [];
+        try {
+            var children = fs.readdirSync(fileName);
+        } 
+        catch (err) {
+            console.log(err);
+            return info;
+        }
+
+        _.each(children, function(child){
+            var childInfo = xDirTree(fileName + '/' + child);
+            info.size += childInfo.size;
+            info.nodes.push(childInfo);
         });
-       
-    } else {
-        i.type = "f";
     }
-    return i;
+    return info;
 }
 
-function totalSize(node){
-    var folderSize = node.size;
-    if(!node.nodes) return folderSize;
-    for(var i = 0; i < node.nodes.length; i++){
-        var child = node.nodes[i];
-        if(node.type === "f") {
-            folderSize += child.size;
-        }
-        else{
-            child.folderSize = totalSize(child);
-            folderSize += child.folderSize;
-        }
-    }
-    return folderSize 
-}
+var tree = xDirTree(process.argv[2]);
 
-
-var tree = dirTree(process.argv[2]);
-
-tree.folderSize = totalSize(tree);
-
-
-
-fs.writeFileSync("tree.json", rjson.pack(util.inspect(tree, false, null)));
-
-console.log((Date.now() - start)/1000 + " seconds") ;
+console.log("parent size : " + (tree.size / (1024*1024*1024)) + " GBs");
+console.log("done creating tree in mem :" +  (Date.now() - start)/1000 + " seconds") ;
+// fs.writeFileSync("xtree.json", util.inspect(tree, false, null));
+fs.writeFileSync("xtree.json", JSON.stringify(tree));
+console.log("done writing tree to file :" +(Date.now() - start)/1000 + " seconds") ;
