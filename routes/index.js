@@ -3,12 +3,9 @@
  * GET home page.
  */
 
-exports.index = function(req, res){
-  res.render('index', { title: 'Express' });
-};
-
+var util = require('util');
 
 exports.dir = function(req,res){
-    console.log(req.params.id);
-    res.render('dir', { dir: req.params.id });
+    console.log(util.inspect(req.query));
+    res.render('dir', { dir: req.query["dir"] });
 };

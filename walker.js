@@ -37,7 +37,8 @@ function xDirTree(fileName){
         }
 
         _.each(children, function(child){
-            var childInfo = xDirTree(fileName + '/' + child);
+            var separator = fileName[fileName.length - 1] !== "/" ? "/" : "";
+            var childInfo = xDirTree(fileName + separator + child);
             info.size += childInfo.size;
             info.nodes.push(childInfo);
         });
@@ -50,5 +51,5 @@ var tree = xDirTree(process.argv[2]);
 console.log("parent size : " + (tree.size / (1024*1024*1024)) + " GBs");
 console.log("done creating tree in mem :" +  (Date.now() - start)/1000 + " seconds") ;
 // fs.writeFileSync("xtree.json", util.inspect(tree, false, null));
-fs.writeFileSync("xtree.json", JSON.stringify(tree));
+fs.writeFileSync("./public/xtree.json", JSON.stringify(tree));
 console.log("done writing tree to file :" +(Date.now() - start)/1000 + " seconds") ;
