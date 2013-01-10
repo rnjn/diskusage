@@ -3,3 +3,14 @@ node_modules/*
 npm-debug.log
 *~
 public/xTree.json
+lib-cov
+*.seed
+*.log
+*.csv
+*.dat
+*.out
+*.pid
+*.gz
+pids
+logs
+results
