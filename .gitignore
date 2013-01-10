@@ -2,7 +2,4 @@
 node_modules/*
 npm-debug.log
 *~
-tmp/*
-build/*
-tmp_build/*
 public/xTree.json
