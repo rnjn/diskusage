@@ -25,6 +25,8 @@ circle.parent:hover {
 }
 
 circle.child {
+  fill: #FF0033;
+  fill-opacity: 1;
   pointer-events: none;
 }
 

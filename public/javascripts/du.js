@@ -58,6 +58,7 @@
 
   var immediateChildren = function(data){
     if(!data.nodes) return data;
+    
     var d = {
       name: data.name,
       size: data.size ,
@@ -70,14 +71,15 @@
       d.nodes.push({
         name : data.nodes[i].name,
         size : data.nodes[i].size,
-        path : data.nodes[i].path
-      });
-      d.hiddenNodes.push({
-        name : data.nodes[i].name,
         path : data.nodes[i].path,
-        size : data.nodes[i].size,
-        nodes: data.nodes[i].nodes
+        hiddenNodes : data.nodes[i].nodes
       });
+      // d.hiddenNodes.push({
+      //   name : data.nodes[i].name,
+      //   path : data.nodes[i].path,
+      //   size : data.nodes[i].size,
+      //   nodes: data.nodes[i].nodes
+      // });
     }
 
     return d;
@@ -109,16 +111,16 @@
     vis.selectAll("circle")
     .data(nodes)
     .enter().append("svg:circle")
-
-    .attr("class", "parent")
-    .attr("class", "parent" )
+    .attr("class", function(d) { 
+      return  d.hiddenNodes ? "parent" : "child"; 
+    })
     .attr("cx", function(d) { return d.x; })
     .attr("cy", function(d) { return d.y; })
     .attr("r", function(d) { return d.r; })
     .on("click", function(d) { 
-      // if(!d.nodes)
-      //   return;
-      if(node.name == d.name)
+    // if(!d.hiddenNodes)
+    //     return zoom(d.parent);
+    if(node.name == d.name)
        window.location = "./?dir=" + d.path ;
       return zoom(d); 
     })
@@ -128,7 +130,9 @@
     vis.selectAll("text")
     .data(nodes)
     .enter().append("svg:text")
-    .attr("class", function(d) { return d.children ? "parent" : "child"; })
+    .attr("class", function(d) { 
+      return d.hiddenNodes ? "parent" : "child"; 
+    })
     .attr("x", function(d) { return d.x; })
     .attr("y", function(d) { return d.y; })
     .attr("dy", ".35em")
