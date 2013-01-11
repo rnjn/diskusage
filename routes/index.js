@@ -1,8 +1,3 @@
-
-/*
- * GET home page.
- */
-
 var util = require('util');
 
 exports.dir = function(req,res){
