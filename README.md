@@ -6,6 +6,8 @@ Simple node application to visualise disk usage on a computer. Run the following
 1. run: node walker.js [path]
 > this creates a json representation of your file system (with the path above as root), and
 > and saves it as public/xTree.json
+> File sizes are in multiples of 1024. Many (eg. Macintosh) OSes follow the base 10 system, so 
+> your observation might differ from what your OS tells you, but not by a lot.
 
 2. run: node app.js
 > starts a express app which reads from the xTree.json file. You should see a bubble graph like below.

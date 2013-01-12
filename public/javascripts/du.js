@@ -10,7 +10,7 @@ var breadcrumbs = function(path) {
     return;
   }
 
-  var steps = _.without(path.split("/"), "");
+  var steps = _.compact(path.split("/"));
 
   var paths = _.map(steps, function(step, index) {
     return '/' + steps.slice(0, index + 1).join('/');
@@ -38,26 +38,28 @@ var findNode = function(data, path) {
     return node ? findNode(node, path) : data;
   };
 
+var shallowClone = function(node){
+  return {
+      name: node.name,
+      size: node.size,
+      nodes: [],
+      path: node.path,
+    };
+}
+
 var immediateChildren = function(data) {
     if(!data.nodes) return data;
 
-    var d = {
-      name: data.name,
-      size: data.size,
-      nodes: [],
-      path: data.path,
-      hiddenNodes: []
-    };
+    var d = shallowClone(data);
 
-    for(var i = 0; i < data.nodes.length; i++) {
+    _.each(data.nodes, function(node){
       d.nodes.push({
-        name: data.nodes[i].name,
-        size: data.nodes[i].size,
-        path: data.nodes[i].path,
-        hiddenNodes: data.nodes[i].nodes
+        name: node.name,
+        size: node.size,
+        path: node.path,
+        hiddenNodes: node.nodes
       });
-    }
-
+    });
     return d;
   };
 
@@ -65,29 +67,31 @@ var limitDepth = function(data, depth) {
     if(!data.nodes) return data;
     if(depth == 1) return immediateChildren(data);
 
-    var d = {
-      name: data.name,
-      size: data.size,
-      path: data.path,
-      nodes: []
-    };
-    for(var i = 0; i < data.nodes.length; i++) {
-      d.nodes.push(limitDepth(data.nodes[i], depth - 1));
-    }
+    var d = shallowClone(data);
+    
+    _.each(data.nodes, function(node){
+      d.nodes.push(limitDepth(node, depth - 1));
+    });
+
     return d;
   };
 
-var getReadableFileSize = function(bytes) {
-    var i = -1,
-      size = bytes;
-    var byteUnits = [' kB', ' MB', ' GB'];
-    do {
-      size = size / 1024;
-      i++;
-    } while (size > 1024);
+var getReadableFileSize = function(bytes){
+  var multiple = 1024;
+  var units = ['Bytes','KB', 'MB', 'GB', 'TB'];
+  
+  var findSize = function(val, index){
+    if(index === units.length - 1) 
+      return val.toFixed(1) + " " + units[index];
 
-    return Math.max(size, 0.1).toFixed(1) + byteUnits[i];
-  };
+    var size =  val/multiple;
+
+    return size > multiple ? 
+        findSize(size, index + 1) : size.toFixed(1) + " " + units[index + 1];
+  }
+  
+  return findSize(bytes, 0);
+}
 
 var getFolderText = function(d) {
     var fileSize = getReadableFileSize(d.size);
@@ -152,7 +156,7 @@ var renderData = function(data) {
 
     //draw all circles
     svg.selectAll("circle").data(nodes).enter().append("svg:circle").attr("class", function(d) {
-      return d.hiddenNodes ? "parent" : "child";
+      return d.nodes || d.hiddenNodes ? "parent" : "child";
     }).attr("cx", function(d) {
       return d.x;
     }).attr("cy", function(d) {
@@ -168,7 +172,7 @@ var renderData = function(data) {
 
     //write all the lables
     svg.selectAll("text").data(nodes).enter().append("svg:text").attr("class", function(d) {
-      return d.hiddenNodes ? "parent" : "child";
+      return d.nodes || d.hiddenNodes ? "parent" : "child";
     }).attr("x", function(d) {
       return d.x;
     }).attr("y", function(d) {
