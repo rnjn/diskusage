@@ -3,6 +3,9 @@ diskusage
 
 Simple node application to visualise disk usage on a computer. Run the following in order.
 
+0. npm install
+> This install all the modules and dependencies
+
 1. run: node walker.js [path]
 > this creates a json representation of your file system (with the path above as root), and
 > and saves it as public/xTree.json
@@ -10,7 +13,10 @@ Simple node application to visualise disk usage on a computer. Run the following
 > your observation might differ from what your OS tells you, but not by a lot.
 
 2. run: node app.js
-> starts a express app which reads from the xTree.json file. You should see a bubble graph like below.
+> starts a express app which reads from the xTree.json file.
+3. open http://localhost:3000
+>
+You should see a bubble graph like below.
   * Rendering SVG is very slow for a lot of data (or maybe I am doing something wrong)
   * Renders upto "n" levels in the same page - see call to limitDepth method.
   * GETs the next level of depth on click, after zoom.
@@ -22,6 +28,9 @@ Simple node application to visualise disk usage on a computer. Run the following
 
 TODO: 
 * Slow performance - serve only the relevant levels
+* Treemap view would be nice.
+* Publish to NPM
+* Do all actions from the Web UI.
 
 
 
